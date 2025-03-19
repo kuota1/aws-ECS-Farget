@@ -11,14 +11,18 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3 # Corregido el nombre de la acción
+        uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # Corregida la clave en minúsculas
-          aws-region: us-east-1 # Corregida la región, debe ser us-east-1, no us.east-1
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1 # Asegúrate de que la región es correcta
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REGISTRY }}
 
       - name: Build and Push Docker Image
         env:
@@ -28,8 +32,3 @@ jobs:
           docker build -t $ECR_REGISTRY:$IMAGE_TAG .
           docker push $ECR_REGISTRY:$IMAGE_TAG
 
-      - name: Guardar variable
-        run: echo "IMAGE_URI=$ECR_REGISTRY:$IMAGE_TAG" >> $GITHUB_ENV # Guardamos la variable IMAGE_URI en el archivo de entorno
-
-      - name: Use the Image URI in a subsequent step
-        run: echo "The Docker image URI is ${{ env.IMAGE_URI }}"
