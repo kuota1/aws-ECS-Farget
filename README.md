@@ -12,28 +12,37 @@ Amazon Elastic Container Registry (ECR) para almacenamiento de imágenes Docker
 ⚙️ GitHub Actions
 🟢 Node.js
  Pasos de implementación
-1️⃣ Configurar AWS ECR
-Crear un repositorio en Amazon ECR
-Subir la imagen del contenedor a ECR
-2️⃣ Autenticarse en ECR y subir la imagen
-Ejecuta los siguientes comandos en la terminal:
-
-bash
-Copiar
-Editar
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <ECR_URI>
+1- Configurar AWS ECR
+-  crear un repositorio en Amazon ECR
+-  subir la imagen del contendor a ECR
+-  Bash
+-  aws ecr get-login-password
+-  region us-east-1 | docker login
+-  --username AWS -- password-stdin
+-  <ECR_URI>
 docker build -t mi-app .
-docker tag mi-app:latest <ECR_URI>:latest
+docker tag mi-app:latest
+<ECR_URI>:latest
 docker push <ECR_URI>:latest
-3️⃣ Configurar AWS ECS con Fargate
-Crear un Cluster ECS
-Definir una tarea ECS con la imagen almacenada en ECR
-Configurar un servicio ECS con Fargate
-4️⃣ Configurar AWS CodePipeline
-Integrar GitHub Actions para disparar el despliegue
-Configurar AWS CodePipeline para actualizar ECS con cada cambio
- Contribuciones
-Si deseas mejorar este proyecto, siéntete libre de hacer un fork y enviar un pull request.
+2- configurar AWS ECS
+- Crear un Cluster ECS con Fargate
+- crear una Task Definition apuntando a la imagen en ECR
+- crear un Servicio ECS para ejecutar la tarea
+3- Configurar AWS CodePipeline
+  - crear una pipeline en CodePipeline
+  - configurar: fuente Amazon ECR(mi-app:latest)
+  - Deploy Amazon ECS (Fargate) con la Task Definition creada
+  - Ejecutar la pipeline y validar el despliegue
 
- Licencia
-Este proyecto está bajo la licencia MIT.
+ Eliminacion de la infraestructura
+
+ Para evitar costos eliminaos:
+ ECS(CLuster Task Definition, service).
+ CodePipeline y CodeBuild
+ ECR (Repositorio e imagen)
+ CloudFOrmation IAM Role Security Groups
+
+ Proximos pasos 
+ -Mejorar el proceso con Terraform
+ -Implementar monitorizacion con AWS Cloudwatch
+ -Optiizar costos usando Spot Instance en ECS
