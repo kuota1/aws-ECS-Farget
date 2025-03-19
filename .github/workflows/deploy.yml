@@ -1,0 +1,29 @@
+name: Deploy to AWS ECR
+
+on:
+  push:
+    branches:
+      - main # Se ejecutará cuando haya cambios en la rama main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3 # Corregido el nombre de la acción
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # Corregida la clave en minúsculas
+          aws-region: us-east-1 # Corregida la región, debe ser us-east-1, no us.east-1
+
+      - name: Build and Push Docker Image
+        env:
+          ECR_REGISTRY: ${{ secrets.AWS_ECR_REGISTRY }}
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY:$IMAGE_TAG # Corregida l
