@@ -1,0 +1,36 @@
+name: Deploy to AWS ECS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+  steps:
+  - name: Checkout repository
+    uses: actions/checkout@v3
+    
+  - name: Login to Amazon ECR
+    id: login-ecr
+    uses: aws-actions/amazon-ecr-login@v1
+
+  - name: Build and push Docker image
+    env:
+      ECR_REGISTRY: ${{ secrets.AWS_ECR_REGISTRY }}
+      ECR_REPOSITORY: aws-ECS-Farget
+      IMAGE_TAG: latest
+    run: |
+      docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+      docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+  - name: Deploy to Amazon ECS
+    env:
+      CLUSTER_NAME: ecs-fargate-demo
+      SERVICE_NAME: ecs-service-demo
+      TASK_FAMILY: ECS-TASK-DEMO
+      IMAGE_URL: ${{ secrets.AWS_ECR_REGISTRY }}/aws-ECS-Farget:latest
+    run: |
+      aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --force-new-deployment --image $IMAGE_URL
